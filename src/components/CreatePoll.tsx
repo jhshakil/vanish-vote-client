@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import DialogComponent from "./DialogComponent";
+import { useUpdateContent } from "@/context/poll.provider";
 
 type PollForm = {
   question: string;
@@ -9,6 +10,7 @@ type PollForm = {
 };
 
 const CreatePoll = () => {
+  const { setUpdateContent } = useUpdateContent();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { register, handleSubmit, reset } = useForm<PollForm>({
     defaultValues: {
@@ -20,19 +22,16 @@ const CreatePoll = () => {
 
   const closeDialog = () => {
     setIsDialogOpen(false);
-    reset(); // Reset form fields on close
+    reset();
   };
 
   const onSubmit = async (data: PollForm) => {
     try {
-      // Split options by comma and trim spaces to create an array of strings
       const formattedData = {
         question: data.question,
         options: data.options.split(",").map((option) => option.trim()),
         expiresAt: new Date(data.expiresAt).toISOString(),
       };
-
-      console.log(formattedData);
 
       const response = await fetch(`${import.meta.env.VITE_BASE_URL}/poll`, {
         method: "POST",
@@ -45,11 +44,11 @@ const CreatePoll = () => {
       const result = await response.json();
 
       if (result.success) {
-        // Close dialog after submitting successfully
         closeDialog();
-        alert("Poll created successfully!"); // Optional: Show a success message
+        setUpdateContent(true);
+        alert("Poll created successfully!");
       } else {
-        alert("Failed to create poll: " + result.message); // Handle failure
+        alert("Failed to create poll: " + result.message);
       }
     } catch (error) {
       console.error(error);
@@ -58,7 +57,8 @@ const CreatePoll = () => {
   };
 
   return (
-    <div className="flex justify-end py-5 px-11 border-b border-slate-800">
+    <div className="flex justify-between py-5 px-11 border-b border-slate-800">
+      <h1 className="text-2xl font-bold text-slate-800">Vanish Vote</h1>
       <button
         className="bg-slate-600 text-white px-4 py-2 rounded"
         onClick={() => setIsDialogOpen(true)}
