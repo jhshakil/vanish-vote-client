@@ -89,7 +89,7 @@ const ViewVote = () => {
             {poll?.options?.map((option) => (
               <button
                 key={option}
-                className="border border-slate-700 px-5 py-2 rounded"
+                className="border border-slate-700 px-5 py-2 rounded uppercase"
                 onClick={() => handleVote(option)}
               >
                 {option}

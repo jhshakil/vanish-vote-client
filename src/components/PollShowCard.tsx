@@ -52,9 +52,7 @@ const PollShowCard = ({
             {results.map(({ option, percentage }) => (
               <div
                 key={option}
-                className={`px-3 py-2 rounded text-white ${
-                  option === "Yes" ? "bg-green-800" : "bg-red-800"
-                }`}
+                className={`px-3 py-2 rounded border border-slate-700`}
               >
                 <p>
                   {option}: <span>{percentage.toFixed(2)}%</span>

@@ -29,8 +29,6 @@ const Home = () => {
     fetchPoll();
   }, []);
 
-  console.log(allPoll);
-
   if (loading) return <p>Loading poll results...</p>;
 
   return (
