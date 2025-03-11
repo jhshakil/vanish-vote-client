@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router-dom";
 import MainLayout from "@/layout/MainLayout";
 import Home from "@/pages/Home";
+import ViewVote from "@/pages/ViewVote";
 
 const routes = createBrowserRouter([
   {
@@ -12,6 +13,11 @@ const routes = createBrowserRouter([
         element: <Home />,
       },
     ],
+  },
+
+  {
+    path: "/poll/:id",
+    element: <ViewVote />,
   },
 ]);
 
