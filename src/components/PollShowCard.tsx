@@ -1,6 +1,7 @@
-import { TPollShow } from "@/types";
+import type { TPollShow } from "@/types";
 import { useState } from "react";
 import DialogComponent from "./DialogComponent";
+import { toast } from "sonner";
 
 const hasPollExpired = (expiresAt: string): boolean => {
   const currentDate = new Date();
@@ -16,16 +17,18 @@ const PollShowCard = ({
   results,
 }: TPollShow) => {
   const isActive = hasPollExpired(expiresAt);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isResultsDialogOpen, setIsResultsDialogOpen] = useState(false);
   const shareableUrl = `${window.location.origin}/poll/${_id}`;
 
-  const closeDialog = () => setIsDialogOpen(false);
+  const closeShareDialog = () => setIsShareDialogOpen(false);
+  const closeResultsDialog = () => setIsResultsDialogOpen(false);
 
   const copyToClipboard = () => {
     navigator.clipboard
       .writeText(shareableUrl)
       .then(() => {
-        alert("URL copied to clipboard!");
+        toast.success("URL copied to clipboard!");
       })
       .catch((error) => {
         console.error("Failed to copy the URL: ", error);
@@ -33,54 +36,81 @@ const PollShowCard = ({
   };
 
   return (
-    <div className="border border-slate-800 rounded p-4">
-      <h2 className="text-lg font-medium">{question}</h2>
+    <div className="bg-white  rounded-lg border border-slate-200  shadow-sm hover:shadow-md transition-shadow p-5 flex flex-col justify-between">
+      <h2 className="text-lg font-medium text-slate-900 mb-4">{question}</h2>
 
       {isActive ? (
-        <div className="mt-3 flex justify-end">
+        <div className="mt-auto flex justify-end">
           <button
-            className="px-4 py-2 rounded bg-blue-800 text-white"
-            onClick={() => setIsDialogOpen(true)}
+            className="px-4 py-2 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            onClick={() => setIsShareDialogOpen(true)}
           >
             Share
           </button>
         </div>
       ) : (
-        <div className="mt-3">
-          <p className="text-lg">Results: Total Vote {totalVotes}</p>
-          <div className="mt-2 flex flex-wrap gap-2">
-            {results.map(({ option, percentage }) => (
-              <div
-                key={option}
-                className={`px-3 py-2 rounded border border-slate-700`}
-              >
-                <p>
-                  {option}: <span>{percentage.toFixed(2)}%</span>
-                </p>
-              </div>
-            ))}
-          </div>
+        <div className="mt-auto flex justify-end">
+          <button
+            className="px-4 py-2 rounded-md bg-emerald-600 hover:bg-emerald-700 text-white font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+            onClick={() => setIsResultsDialogOpen(true)}
+          >
+            Show Results
+          </button>
         </div>
       )}
 
+      {/* Share Dialog */}
       <DialogComponent
-        isOpen={isDialogOpen}
-        onClose={closeDialog}
+        isOpen={isShareDialogOpen}
+        onClose={closeShareDialog}
         title="Share Poll"
       >
-        <p className="mb-4">Share this poll using the link below:</p>
-        <input
-          type="text"
-          value={shareableUrl}
-          readOnly
-          className="w-full p-2 border border-gray-300 rounded mb-4"
-        />
-        <button
-          className="px-4 py-2 rounded bg-blue-800 text-white"
-          onClick={copyToClipboard}
-        >
-          Copy URL
-        </button>
+        <p className="mb-4 text-slate-700">
+          Share this poll using the link below:
+        </p>
+        <div className="flex items-center space-x-2 mb-4">
+          <input
+            type="text"
+            value={shareableUrl}
+            readOnly
+            className="w-full p-2.5 border border-slate-300 rounded-md bg-slate-50 text-slate-900 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          />
+          <button
+            className="px-4 py-2.5 rounded-md bg-blue-600 hover:bg-blue-700 text-white font-medium transition-colors flex-shrink-0 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            onClick={copyToClipboard}
+          >
+            Copy
+          </button>
+        </div>
+      </DialogComponent>
+
+      {/* Results Dialog */}
+      <DialogComponent
+        isOpen={isResultsDialogOpen}
+        onClose={closeResultsDialog}
+        title="Poll Results"
+      >
+        <p className="text-lg mb-4 font-medium text-slate-900">
+          Total Votes: <span className="font-bold">{totalVotes}</span>
+        </p>
+        <div className="space-y-4">
+          {results.map(({ option, percentage }) => (
+            <div key={option} className="space-y-1">
+              <div className="flex items-center justify-between">
+                <p className="font-medium text-slate-800">{option}</p>
+                <p className="font-bold text-slate-900">
+                  {percentage.toFixed(1)}%
+                </p>
+              </div>
+              <div className="w-full bg-slate-200 rounded-full h-2.5">
+                <div
+                  className="bg-blue-600 h-2.5 rounded-full"
+                  style={{ width: `${percentage}%` }}
+                ></div>
+              </div>
+            </div>
+          ))}
+        </div>
       </DialogComponent>
     </div>
   );
